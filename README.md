@@ -27,17 +27,13 @@ docker push registry0124.azurecr.io/orderservice:1.0.0
 ```
 az acr repository list --name Registry0124 --output table 
 ```
-![microservice_acr](image/microservice_acr.png)
 
 #### 创建服务总线：
 
 在Azure portal上创建服务总线：  
 
-![ServiceB](image/ServiceB.png)  
 
 获取服务总线connection string:
-
-![SB_connect](image/SB_connect.png)  
 
 点击网站：https://www.base64encode.org/  
 
@@ -45,11 +41,7 @@ az acr repository list --name Registry0124 --output table
 
 在Azure Portal上创建Storage account:
 
-![create_storage](image/create_storage.png)  
-
 获取 storage connection string:  
-
-![storage_connect](image/storage_connect.png) 
 
 同理进行编码转换后将字符填写到secret.yaml中
 
@@ -58,7 +50,6 @@ az acr repository list --name Registry0124 --output table
 cd deployment
 kubectl create -f secret.yaml
 ```
-![microservice_secret](image/microservice_secret.png)  
 
 #### 部署应用程序的所有服务：  
 ```
@@ -79,16 +70,26 @@ kubectl scale --replicas 1 deployment printingservice-deployment
 ```
 cd PrintingService
 ```
-更改printing服务的前端文件中68行： version版本更改；  
+更改printing服务的前端文件中68行： version版本更改；   
+
+重新构建应用程序
 
 ```
-docker build -t registry0124.azurecr.io/printingservice:1.0.0 PrintingService/.
-
+docker build -t registry0124.azurecr.io/printingservice:1.0.0 PrintingService/.  
+```
+将应用程序新版本推到容器注册表： 
+```
 docker push registry0124.azurecr.io/printingservice:1.0.1
-
+```
+设置需要更新的镜像：
+```
 kubectl set image deployment/printingservice-deployment printingservice=registry0124.azurecr.io/printingservice:1.0.1
-
+```
+进行部署的更新：  
+```
 kubectl rollout history deployment/printingservice-deployment
-
+```
+回到上一个部署版本：
+```
 kubectl rollout undo deployment/printingservice-deployment --to-revision=1  
 ```
